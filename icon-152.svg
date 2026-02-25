@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 152 152">
+  <rect width="152" height="152" rx="19" fill="#111111"/>
+  <path d="M76,76
+    C76,44 59,36 47,48
+    C33,54 28,65 28,76
+    C28,86 33,97 47,103
+    C59,109 76,107 76,76
+    C76,44 92,36 104,48
+    C118,54 123,65 123,76
+    C123,86 118,97 104,103
+    C92,109 76,107 76,76Z"
+    stroke="rgba(255,255,255,0.6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <circle cx="76" cy="76" r="4" fill="rgba(255,255,255,0.75)"/>
+</svg>
