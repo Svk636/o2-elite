@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080808">
+<title>O2 Elite · Not Found</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#080808;color:#e8e8e8;font-family:'Space Mono',monospace;display:flex;align-items:center;justify-content:center;text-align:center}
+.wrap{padding:2rem;max-width:400px}
+.kanji{font-size:4rem;color:rgba(255,255,255,0.05);letter-spacing:0.4em;line-height:1;margin-bottom:1.5rem;font-family:serif}
+.code{font-size:3rem;font-weight:700;color:rgba(255,255,255,0.08);letter-spacing:0.1em;line-height:1}
+.msg{font-size:0.52rem;color:#484848;letter-spacing:0.22em;text-transform:uppercase;margin-top:0.75rem;margin-bottom:2rem;line-height:2}
+.btn{display:inline-block;font-family:'Space Mono',monospace;font-size:0.52rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:0.55rem 1.4rem;border:1px solid rgba(255,255,255,0.15);color:#e8e8e8;text-decoration:none;transition:all 0.15s}
+.btn:hover{background:#e8e8e8;color:#000;border-color:#e8e8e8}
+.rule{width:40px;height:1px;background:rgba(255,255,255,0.08);margin:1.5rem auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kanji">迷</div>
+  <div class="code">404</div>
+  <div class="msg">Page not found<br>The path has dissolved</div>
+  <div class="rule"></div>
+  <a class="btn" href="./">← Return to Daily Architecture</a>
+</div>
+<script>
+  // GitHub Pages SPA redirect: restore path from sessionStorage if present
+  var redirect = sessionStorage.getItem('o2-redirect');
+  if (redirect) {
+    sessionStorage.removeItem('o2-redirect');
+    window.location.replace(redirect);
+  }
+</script>
+</body>
+</html>

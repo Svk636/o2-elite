@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="O2 Elite">
+<meta name="application-name" content="O2 Elite">
+<meta name="description" content="O2 Elite · 24-hour daily architecture planner with four domains, split slots, and microstep timers.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileColor" content="#080808">
+
+<title>O2 Elite · Daily Architecture</title>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Icons -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.svg">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.svg">
+<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.svg">
+<meta name="msapplication-TileImage" content="icons/icon-144.svg">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ══════════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════════ */
+:root {
+  --bg:        #080808;
+  --surface:   #0f0f0f;
+  --card-bg:   #111111;
+  --card-bg2:  #141414;
+  --ink:       #e8e8e8;
+  --ink2:      #b0b0b0;
+  --muted:     #484848;
+  --muted2:    #2e2e2e;
+  --line:      rgba(255,255,255,0.06);
+  --line2:     rgba(255,255,255,0.10);
+  --r:         2px;
+  --rs:        1px;
+
+  --morning:       rgba(255,255,255,0.82);
+  --afternoon:     rgba(255,255,255,0.82);
+  --evening:       rgba(255,255,255,0.82);
+  --night:         rgba(255,255,255,0.82);
+  --morning-bg:    rgba(255,255,255,0.04);
+  --afternoon-bg:  rgba(255,255,255,0.04);
+  --evening-bg:    rgba(255,255,255,0.04);
+  --night-bg:      rgba(255,255,255,0.04);
+
+  --bar-m:    rgba(255,255,255,0.55);
+  --bar-a:    rgba(255,255,255,0.38);
+  --bar-e:    rgba(255,255,255,0.22);
+  --bar-n:    rgba(255,255,255,0.12);
+
+  --brand:         #080808;
+  --brand-gold:    rgba(255,255,255,0.55);
+
+  --sat: env(safe-area-inset-top,    0px);
+  --sar: env(safe-area-inset-right,  0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left,   0px);
+}
+
+/* ══════════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  padding: 0 0 calc(4rem + var(--sab));
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+.wrap { max-width: 1180px; margin: 0 auto; position: relative; z-index: 1; padding: 0 1.25rem 2rem; }
+
+/* ══════════════════════════════════════════════════
+   TOP NAV
+══════════════════════════════════════════════════ */
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  background: #080808;
+  border-bottom: 1px solid var(--line);
+  padding: calc(0.9rem + var(--sat)) 1.5rem 0.9rem;
+  display: flex; align-items: center; gap: 0.85rem;
+  user-select: none;
+}
+
+.nav__logo { flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.nav__logo svg { width: 100%; height: 100%; display: block; }
+
+.nav__brand { display: flex; flex-direction: column; gap: 0.08rem; min-width: 0; }
+.nav__name {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(0.9rem, 3vw, 1.05rem);
+  color: var(--ink);
+  letter-spacing: 0.12em;
+  line-height: 1; white-space: nowrap;
+}
+.nav__name span { color: rgba(255,255,255,0.35); font-style: italic; }
+.nav__tagline {
+  font-family: 'Noto Serif JP', serif; font-weight: 300;
+  font-size: 0.42rem; color: var(--muted);
+  letter-spacing: 0.32em; text-transform: uppercase;
+}
+
+.nav__right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+.nav__meta  { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; }
+.nav__date  { font-size: 0.46rem; color: var(--muted); letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; }
+.nav__install { font-size: 0.42rem; color: var(--brand-gold); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; opacity: 0.55; transition: opacity 0.15s; display: none; }
+.nav__install.visible { display: block; }
+.nav__install:hover { opacity: 1; }
+
+/* Help button */
+.nav__help {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border: 1px solid var(--muted2);
+  background: transparent; color: var(--muted); cursor: pointer;
+  font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700;
+  transition: all 0.15s; flex-shrink: 0; border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav__help:hover { border-color: var(--ink2); color: var(--ink2); }
+
+/* ══════════════════════════════════════════════════
+   README / USER MANUAL MODAL
+══════════════════════════════════════════════════ */
+.docs-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.94);
+  display: none; flex-direction: column; align-items: center;
+  padding: calc(1.5rem + var(--sat)) 1rem calc(1.5rem + var(--sab));
+  overflow-y: auto;
+}
+.docs-overlay.visible { display: flex; }
+
+.docs-modal {
+  width: 100%; max-width: 680px;
+  background: var(--card-bg);
+  border: 1px solid var(--line2);
+  padding: 2rem;
+  position: relative;
+  animation: fadeUp 0.25s ease both;
+}
+
+.docs-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: transparent; border: 1px solid var(--muted2);
+  color: var(--muted); cursor: pointer;
+  font-family: 'Space Mono', monospace; font-size: 0.52rem;
+  padding: 0.2rem 0.5rem; transition: all 0.15s;
+}
+.docs-close:hover { border-color: var(--ink2); color: var(--ink2); }
+
+.docs-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--line);
+  margin-bottom: 1.8rem;
+}
+.docs-tab {
+  flex: 1; text-align: center; padding: 0.55rem 0.5rem;
+  font-family: 'Space Mono', monospace; font-size: 0.44rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); cursor: pointer; background: transparent;
+  border: none; border-bottom: 2px solid transparent;
+  transition: all 0.15s; position: relative; bottom: -1px;
+}
+.docs-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+.docs-tab:hover:not(.active) { color: var(--ink2); }
+
+.docs-pane { display: none; }
+.docs-pane.active { display: block; }
+
+/* Docs typography */
+.docs-h1 {
+  font-family: 'DM Serif Display', serif; font-size: 1.4rem;
+  color: var(--ink); letter-spacing: 0.04em; margin-bottom: 0.25rem;
+}
+.docs-h1 span { font-style: italic; color: rgba(255,255,255,0.35); }
+.docs-tagline {
+  font-family: 'Noto Serif JP', serif; font-weight: 300;
+  font-size: 0.44rem; color: var(--muted); letter-spacing: 0.28em;
+  text-transform: uppercase; margin-bottom: 1.8rem;
+}
+.docs-rule { height: 1px; background: var(--line2); margin: 1.5rem 0; }
+.docs-section { margin-bottom: 1.6rem; }
+.docs-h2 {
+  font-family: 'DM Serif Display', serif; font-size: 0.82rem;
+  color: var(--ink2); letter-spacing: 0.06em; margin-bottom: 0.55rem;
+}
+.docs-p {
+  font-size: 0.52rem; color: var(--ink2); line-height: 1.9;
+  letter-spacing: 0.03em; margin-bottom: 0.5rem;
+}
+.docs-ul { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.5rem; }
+.docs-ul li {
+  display: flex; gap: 0.55rem; align-items: flex-start;
+  font-size: 0.52rem; color: var(--ink2); line-height: 1.7;
+}
+.docs-ul li::before { content: '—'; color: var(--muted); flex-shrink: 0; margin-top: 0.04rem; }
+.docs-ol { counter-reset: docs-cnt; display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.5rem; }
+.docs-ol li {
+  display: flex; gap: 0.55rem; align-items: flex-start;
+  font-size: 0.52rem; color: var(--ink2); line-height: 1.7;
+  counter-increment: docs-cnt;
+}
+.docs-ol li::before { content: counter(docs-cnt); color: var(--muted); flex-shrink: 0; min-width: 1rem; margin-top: 0.04rem; }
+.docs-kbd {
+  display: inline-block; font-family: 'Space Mono', monospace;
+  font-size: 0.4rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--muted2); padding: 0.08rem 0.3rem;
+  letter-spacing: 0.06em;
+}
+.docs-em { color: var(--ink); font-style: normal; }
+.docs-version {
+  font-size: 0.42rem; color: var(--muted); letter-spacing: 0.18em;
+  text-transform: uppercase; margin-top: 1.5rem; padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+/* Domain color chips */
+.docs-domain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.5rem; }
+.docs-domain-chip {
+  border: 1px solid var(--line2); padding: 0.6rem 0.75rem;
+  display: flex; flex-direction: column; gap: 0.1rem;
+}
+.docs-chip-name { font-family: 'DM Serif Display', serif; font-size: 0.72rem; color: var(--ink); }
+.docs-chip-sub  { font-size: 0.42rem; color: var(--muted); letter-spacing: 0.16em; }
+
+/* ══════════════════════════════════════════════════
+   PAGE TITLE
+══════════════════════════════════════════════════ */
+.page-head { text-align: center; padding: 2.8rem 1rem 2rem; }
+.page-head__kanji {
+  display: block; font-family: 'Noto Serif JP', serif; font-weight: 300;
+  font-size: clamp(2rem, 6vw, 4rem); letter-spacing: 0.35em; line-height: 1;
+  color: rgba(255,255,255,0.08);
+}
+.page-head__sub {
+  display: block; font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: clamp(0.65rem, 1.4vw, 0.78rem); color: var(--muted);
+  letter-spacing: 0.18em; margin-top: 0.6rem;
+}
+.page-head__rule { display: flex; align-items: center; gap: 0.7rem; max-width: 160px; margin: 1.1rem auto 0; }
+.page-head__rule::before, .page-head__rule::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+}
+.hd { width: 2px; height: 2px; border-radius: 50%; background: var(--muted); opacity: 0.28; }
+
+/* ══════════════════════════════════════════════════
+   TIMELINE BAR
+══════════════════════════════════════════════════ */
+.timeline { margin-bottom: 2.5rem; }
+.tl-labels { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+.tl-lbl { font-size: 0.44rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--muted); }
+.tl-bar { display: flex; height: 1px; gap: 2px; border-radius: 1px; overflow: hidden; }
+.tl-seg { height: 100%; border-radius: 1px; min-width: 3px; transition: flex 0.75s cubic-bezier(0.4,0,0.2,1); }
+
+/* ══════════════════════════════════════════════════
+   DOMAIN NAV STRIP
+══════════════════════════════════════════════════ */
+.domain-nav {
+  display: flex; gap: 0; margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+}
+.dnav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 0.18rem; padding: 0.7rem 0.5rem 0.6rem;
+  background: transparent; border: none; cursor: pointer;
+  border-right: 1px solid var(--line);
+  transition: background 0.15s; position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.dnav-btn:last-child { border-right: none; }
+.dnav-btn:hover { background: rgba(255,255,255,0.03); }
+.dnav-kanji {
+  font-family: 'Noto Serif JP', serif; font-weight: 300;
+  font-size: 0.9rem; line-height: 1;
+  color: var(--muted); transition: color 0.15s;
+}
+.dnav-name {
+  font-family: 'Space Mono', monospace; font-size: 0.34rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); transition: color 0.15s;
+}
+.dnav-btn.dnav-active .dnav-kanji { color: var(--ink); }
+.dnav-btn.dnav-active .dnav-name  { color: var(--ink2); }
+.dnav-btn.dnav-active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px; background: var(--ink);
+}
+.dnav-btn.dnav-done .dnav-kanji {
+  text-decoration: line-through; text-decoration-thickness: 1px;
+  opacity: 0.22;
+}
+.dnav-btn.dnav-done .dnav-name { opacity: 0.18; }
+
+/* ══════════════════════════════════════════════════
+   DOMAIN GRID
+══════════════════════════════════════════════════ */
+.grid { display: block; }
+
+/* ══════════════════════════════════════════════════
+   DOMAIN CARD
+══════════════════════════════════════════════════ */
+.card {
+  background: var(--card-bg);
+  border: none;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  overflow: hidden; position: relative;
+  transition: background 0.2s;
+}
+.card:first-child { border-left: 1px solid var(--line); }
+.card:hover { background: var(--card-bg2); }
+
+.card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 1px;
+}
+.card.m::before { background: var(--bar-m); }
+.card.a::before { background: var(--bar-a); }
+.card.e::before { background: var(--bar-e); }
+.card.n::before { background: var(--bar-n); }
+
+.card-hd { padding: 1.4rem 1.25rem 1.1rem 1.65rem; border-bottom: 1px solid var(--line); }
+.card-title { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+.kanji { font-family: 'Noto Serif JP', serif; font-weight: 300; font-size: 1.55rem; line-height: 1; flex-shrink: 0; color: rgba(255,255,255,0.12); }
+.cnames { display: flex; flex-direction: column; gap: 0.1rem; }
+.cname { font-family: 'DM Serif Display', serif; font-size: 0.92rem; color: var(--ink); letter-spacing: 0.04em; }
+.cname-jp { font-family: 'Noto Serif JP', serif; font-weight: 300; font-size: 0.46rem; color: var(--muted); letter-spacing: 0.28em; }
+.badge { margin-left: auto; font-size: 0.42rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 0.16rem 0.44rem; border: 1px solid var(--line2); flex-shrink: 0; white-space: nowrap; color: var(--muted); background: transparent; }
+
+.hr-row { display: flex; align-items: center; gap: 0.28rem; }
+.hr-lbl { font-size: 0.42rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-right: 0.2rem; white-space: nowrap; }
+.hbtn {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 22px;
+  border: 1px solid var(--muted2); background: transparent;
+  color: var(--muted); font-family: 'Space Mono', monospace;
+  font-size: 0.52rem; cursor: pointer; transition: all 0.15s; user-select: none;
+}
+.hbtn:hover:not(.on) { border-color: var(--ink2); color: var(--ink2); }
+.hbtn.on { color: #000; background: var(--ink); border-color: var(--ink); }
+
+/* ══════════════════════════════════════════════════
+   PLACEHOLDER
+══════════════════════════════════════════════════ */
+.slots-wrap { padding: 1rem 1.25rem 1rem 1.65rem; display: flex; flex-direction: column; gap: 0; }
+.ph { padding: 2rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+.ph-ring { width: 24px; height: 24px; border: 1px solid var(--muted2); border-radius: 50%; border-top-color: transparent; opacity: 0.22; }
+.ph-txt { font-size: 0.46rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; line-height: 2; text-align: center; }
+
+/* ══════════════════════════════════════════════════
+   SLOT
+══════════════════════════════════════════════════ */
+.slot {
+  border: none; border-top: 1px solid var(--line);
+  background: transparent; overflow: hidden;
+  animation: fadeUp 0.35s ease both;
+}
+.slot.first { border-top: none; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+.slot-top { display: flex; align-items: center; padding: 0.82rem 1rem 0 1.65rem; }
+.slot-num { font-size: 0.38rem; color: var(--muted); opacity: 0.3; letter-spacing: 0.08em; margin-right: 0.5rem; flex-shrink: 0; user-select: none; }
+.slot-ico { font-size: 0.8rem; margin-right: 0.45rem; flex-shrink: 0; line-height: 1; opacity: 0.7; }
+.slot-lbl { flex: 1; min-width: 0; }
+.slot-name { font-family: 'DM Serif Display', serif; font-size: 0.88rem; color: var(--ink); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.02em; }
+.slot-jp { font-family: 'Noto Serif JP', serif; font-weight: 300; font-size: 0.42rem; color: var(--muted); letter-spacing: 0.26em; margin-top: 0.12rem; }
+
+.bar-row { display: flex; align-items: center; gap: 0.45rem; padding: 0.38rem 1rem 0 1.65rem; }
+.track { flex: 1; height: 1px; background: var(--muted2); border-radius: 1px; overflow: hidden; display: flex; }
+.track-a, .track-b { height: 100%; }
+.track-a { background: rgba(255,255,255,0.12); }
+.track-b { background: rgba(255,255,255,0.32); }
+
+.dur { font-size: 0.54rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; color: var(--ink2); }
+
+/* ══════════════════════════════════════════════════
+   SPLIT PARTS
+══════════════════════════════════════════════════ */
+.split-parts { display: flex; flex-direction: column; }
+.split-part { border-top: 1px solid var(--line); }
+
+.split-part.part-done .split-ms,
+.split-part.part-done .ms-form { display: none !important; }
+.split-part.part-done .split-part-hd { padding: 0.28rem 1rem; opacity: 0.28; }
+.split-part.part-done .split-part-label span:not(.sp-ico):not(.sp-jp) {
+  text-decoration: line-through; text-decoration-thickness: 1px; font-size: 0.58rem;
+}
+.split-part.part-done .split-start-btn { display: none; }
+.split-part.part-done .split-dur { display: none; }
+.split-part.part-hidden { display: none !important; }
+
+.part-done-badge {
+  font-size: 0.38rem; letter-spacing: 0.18em; text-transform: uppercase;
+  font-weight: 700; padding: 0.08rem 0.3rem;
+  color: #000; background: var(--ink); flex-shrink: 0;
+}
+
+.split-part-hd { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem 0.28rem 1.65rem; }
+.split-part-label { display: flex; align-items: center; gap: 0.38rem; font-family: 'DM Serif Display', serif; font-size: 0.72rem; color: var(--ink2); }
+.split-part-label .sp-ico { font-size: 0.78rem; line-height: 1; opacity: 0.5; }
+.split-part-label .sp-jp { font-family: 'Noto Serif JP', serif; font-weight: 300; font-size: 0.4rem; color: var(--muted); letter-spacing: 0.22em; margin-left: 0.12rem; }
+.split-dur { font-size: 0.52rem; font-weight: 700; color: var(--ink2); }
+
+.split-start-btn {
+  font-family: 'Space Mono', monospace; font-size: 0.42rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(255,255,255,0.18); cursor: pointer; background: transparent;
+  color: var(--ink); transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.split-start-btn:hover { background: var(--ink); color: #000; border-color: var(--ink); }
+
+.split-ms {
+  display: none; padding: 0 1rem 0.65rem 1.65rem;
+  animation: fadeUp 0.16s ease both;
+}
+.split-ms.ms-open { display: block; }
+
+/* ══════════════════════════════════════════════════
+   MICROSTEPS
+══════════════════════════════════════════════════ */
+.ms-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 0.5rem; }
+.ms-item {
+  display: flex; align-items: center; gap: 0.35rem;
+  border-top: 1px solid var(--line);
+  padding: 0.28rem 0; animation: fadeUp 0.15s ease both;
+}
+.ms-item:first-child { border-top: none; }
+.ms-name { flex: 1; font-size: 0.52rem; color: var(--ink2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; letter-spacing: 0.04em; }
+.ms-name.ms-struck {
+  text-decoration: line-through; text-decoration-thickness: 1px;
+  opacity: 0.28; color: var(--muted);
+}
+.ms-tag { font-size: 0.42rem; color: var(--muted); background: transparent; border: 1px solid var(--muted2); padding: 0.04rem 0.22rem; white-space: nowrap; flex-shrink: 0; }
+.ms-del { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.65rem; line-height: 1; opacity: 0.3; padding: 0; flex-shrink: 0; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
+.ms-del:hover { opacity: 0.7; }
+
+.ms-form { display: flex; gap: 0.22rem; align-items: stretch; padding-top: 0.4rem; border-top: 1px solid var(--line); }
+.ms-in {
+  flex: 1; min-width: 0; font-family: 'Space Mono', monospace; font-size: 0.52rem;
+  padding: 0.26rem 0.4rem; border: 1px solid var(--muted2);
+  background: transparent; color: var(--ink); outline: none; transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.ms-in::placeholder { color: var(--muted); }
+.ms-in:focus { border-color: rgba(255,255,255,0.28); }
+.ms-dur {
+  width: 44px; font-family: 'Space Mono', monospace; font-size: 0.52rem;
+  padding: 0.26rem 0.28rem; border: 1px solid var(--muted2);
+  background: transparent; color: var(--ink); outline: none;
+  text-align: center; -moz-appearance: textfield; transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.ms-dur::-webkit-outer-spin-button, .ms-dur::-webkit-inner-spin-button { -webkit-appearance: none; }
+.ms-dur::placeholder { color: var(--muted); }
+.ms-dur:focus { border-color: rgba(255,255,255,0.28); }
+.ms-add-btn {
+  font-family: 'Space Mono', monospace; font-size: 0.46rem; font-weight: 700;
+  padding: 0.26rem 0.44rem; border: 1px solid var(--muted2);
+  background: transparent; color: var(--ink2); cursor: pointer;
+  white-space: nowrap; transition: all 0.15s; letter-spacing: 0.1em;
+  -webkit-tap-highlight-color: transparent;
+}
+.ms-add-btn:hover { background: var(--ink); color: #000; border-color: var(--ink); }
+
+.ms-toggle-btn {
+  font-family: 'Space Mono', monospace; font-size: 0.4rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.16rem 0.36rem;
+  border: 1px solid var(--muted2); cursor: pointer; background: transparent;
+  color: var(--muted); transition: all 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.ms-toggle-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--ink2); }
+.ms-toggle-btn.ms-open { background: rgba(255,255,255,0.06); color: var(--ink2); border-color: rgba(255,255,255,0.16); }
+
+/* ══════════════════════════════════════════════════
+   NIGHT CARD
+══════════════════════════════════════════════════ */
+.night-body { padding: 1rem 1.25rem 1.25rem 1.65rem; }
+.night-block { background: transparent; border: 1px solid var(--line); padding: 1.5rem 1rem; text-align: center; position: relative; overflow: hidden; animation: fadeUp 0.32s ease both; }
+.night-block::before { content: '☽  ○  ☾'; position: absolute; top: 0.65rem; right: 1rem; font-size: 0.44rem; color: var(--muted); opacity: 0.12; letter-spacing: 0.38em; }
+.n-orb { width: 44px; height: 44px; margin: 0 auto 0.85rem; position: relative; }
+.n-orb svg { width: 100%; height: 100%; animation: spinSlow 12s linear infinite; }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+.n-orb-lbl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 700; color: var(--ink2); }
+.n-title { font-family: 'DM Serif Display', serif; font-size: 0.9rem; color: var(--ink); margin-bottom: 0.22rem; letter-spacing: 0.05em; }
+.n-sub   { font-family: 'Noto Serif JP', serif; font-weight: 300; font-size: 0.46rem; color: var(--muted); letter-spacing: 0.3em; }
+.n-desc  { margin-top: 0.75rem; font-size: 0.46rem; color: var(--muted); letter-spacing: 0.12em; line-height: 2; text-transform: uppercase; }
+
+/* ══════════════════════════════════════════════════
+   SUMMARY
+══════════════════════════════════════════════════ */
+.summary { margin-top: 2rem; border-top: 1px solid var(--line); padding: 1.8rem 2rem; position: relative; overflow: hidden; background: transparent; }
+.summary::before { content: '間'; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-family: 'Noto Serif JP', serif; font-size: 5rem; color: var(--ink); opacity: 0.018; line-height: 1; pointer-events: none; }
+.sum-row { display: flex; justify-content: center; align-items: center; gap: 2.5rem; flex-wrap: wrap; }
+.sum-item { text-align: center; }
+.sum-val { display: block; font-family: 'DM Serif Display', serif; font-size: 2.5rem; line-height: 1; color: var(--ink); }
+.sum-lbl { display: block; font-size: 0.42rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); margin-top: 0.3rem; }
+.sum-div { width: 1px; height: 1.8rem; background: var(--muted2); flex-shrink: 0; }
+.sum-zen { text-align: center; margin-top: 1.5rem; font-family: 'DM Serif Display', serif; font-style: italic; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; min-height: 1.1rem; }
+
+/* ══════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════ */
+.foot {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.75rem; padding: 1.2rem 1.5rem;
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+}
+.foot__logo { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.28; }
+.foot__logo svg { width: 100%; height: 100%; display: block; }
+.foot__text {
+  font-size: 0.42rem; color: var(--muted); letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.foot__text span { color: rgba(255,255,255,0.22); }
+
+/* ══════════════════════════════════════════════════
+   OVERLAY / TIMER
+══════════════════════════════════════════════════ */
+.overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.96);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  transition: opacity 0.2s;
+}
+.overlay.off { display: none; }
+
+.tmr { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.tmr-domain { font-size: 0.46rem; letter-spacing: 0.38em; text-transform: uppercase; margin-bottom: 0.3rem; color: var(--muted); }
+.tmr-slot   { font-family: 'DM Serif Display', serif; font-style: italic; font-size: clamp(0.82rem,2.8vw,1.1rem); color: rgba(255,255,255,0.45); margin-bottom: 0.18rem; text-align: center; }
+.tmr-step   { font-family: 'DM Serif Display', serif; font-size: clamp(1.1rem,4.5vw,1.9rem); color: #fff; text-align: center; min-height: 2rem; letter-spacing: 0.02em; }
+
+.ring-wrap { position: relative; width: min(190px,50vw); height: min(190px,50vw); margin: 0.8rem auto 0.5rem; }
+.ring-svg  { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg   { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 1; }
+.ring-arc  { fill: none; stroke-width: 1; stroke-linecap: butt; }
+.ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-time { font-family: 'DM Serif Display', serif; font-size: clamp(2.4rem,9vw,3.8rem); color: #fff; line-height: 1; letter-spacing: 0.01em; }
+.ring-lbl  { font-size: 0.44rem; color: rgba(255,255,255,0.2); letter-spacing: 0.28em; text-transform: uppercase; margin-top: 0.35rem; }
+
+.tmr-dots { display: flex; gap: 0.38rem; flex-wrap: wrap; justify-content: center; margin: 0.55rem 0; min-height: 14px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; transition: all 0.3s; }
+.dot-p { background: rgba(255,255,255,0.08); }
+.dot-a { background: #fff; transform: scale(1.6); }
+.dot-d { background: rgba(255,255,255,0.38); }
+.dot-s { background: transparent; border: 1px solid rgba(255,255,255,0.18); }
+
+.tmr-meta { display: flex; justify-content: space-between; width: min(300px,86vw); font-size: 0.44rem; color: rgba(255,255,255,0.2); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem; }
+
+.ctrls { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.ctrl {
+  font-family: 'Space Mono', monospace; font-size: 0.52rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 0.5rem 1.1rem;
+  border: none; cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+  user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.ctrl:hover  { opacity: 0.75; transform: scale(0.97); }
+.ctrl:active { opacity: 0.5; }
+.ctrl-done  { color: #000; background: #fff; }
+.ctrl-skip  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45); }
+.ctrl-pause { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.32); }
+.ctrl-close { background: transparent; color: rgba(255,255,255,0.18); font-size: 0.46rem; border: 1px solid rgba(255,255,255,0.08); }
+
+.complete { display: flex; flex-direction: column; align-items: center; text-align: center; animation: fadeUp 0.4s ease both; }
+.c-icon  { font-size: 2.4rem; margin-bottom: 0.7rem; opacity: 0.7; }
+.c-title { font-family: 'DM Serif Display', serif; font-size: 1.7rem; margin-bottom: 0.3rem; color: #fff; letter-spacing: 0.03em; }
+.c-sub   { font-size: 0.48rem; color: rgba(255,255,255,0.22); letter-spacing: 0.26em; text-transform: uppercase; }
+.c-stats { display: flex; gap: 2.2rem; margin-top: 1.8rem; flex-wrap: wrap; justify-content: center; }
+.cstat   { text-align: center; }
+.cstat-val { display: block; font-family: 'DM Serif Display', serif; font-size: 2rem; }
+.cstat-lbl { font-size: 0.44rem; color: rgba(255,255,255,0.22); letter-spacing: 0.22em; text-transform: uppercase; }
+.c-zen   { margin-top: 1.4rem; font-family: 'DM Serif Display', serif; font-style: italic; font-size: 0.68rem; color: rgba(255,255,255,0.18); letter-spacing: 0.08em; }
+.c-close { margin-top: 1.8rem; font-family: 'Space Mono', monospace; font-size: 0.52rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.5rem 1.4rem; border: none; color: #000; cursor: pointer; transition: opacity 0.15s; touch-action: manipulation; }
+.c-close:hover { opacity: 0.82; }
+
+.gone { display: none !important; }
+
+/* ── PROGRESSIVE SLOT STATES ─── */
+.slot-locked { display: none !important; }
+
+.slot-done .split-parts,
+.slot-done .complete-slot-btn:not(.reopen-btn) { display: none !important; }
+.slot-done .reopen-btn { display: inline-block !important; opacity: 0.2; }
+.slot-done { opacity: 0.35; position: relative; }
+.slot-done .slot-name { text-decoration: line-through; text-decoration-thickness: 1px; }
+.slot-done .split-start-btn, .slot-done .ms-add-btn, .slot-done .ms-del { pointer-events: none; opacity: 0.2; }
+.slot-done::after {
+  content: '✓';
+  position: absolute; top: 0.88rem; right: 1rem;
+  font-size: 0.46rem; letter-spacing: 0.1em;
+  font-family: 'Space Mono', monospace; font-weight: 700;
+  color: var(--muted);
+}
+
+.complete-slot-btn {
+  display: block; width: calc(100% - 2.65rem);
+  margin: 0.2rem 1rem 0.75rem 1.65rem;
+  font-family: 'Space Mono', monospace; font-size: 0.44rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 0.36rem 0; border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; color: var(--muted); cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.complete-slot-btn:hover { border-color: rgba(255,255,255,0.22); color: var(--ink2); }
+
+/* ══════════════════════════════════════════════════
+   MOBILE
+══════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .nav { padding-left: 1rem; padding-right: 1rem; }
+  .wrap { padding: 0 0 2rem; }
+  .card { border-left: none; border-right: none; }
+  .docs-modal { padding: 1.5rem; }
+  .docs-domain-grid { grid-template-columns: 1fr; }
+}
+
+/* Touch targets */
+.hbtn, .split-start-btn, .ms-del, .ms-add-btn, .ms-toggle-btn,
+.dnav-btn, .ctrl { touch-action: manipulation; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--muted2); }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     README / USER MANUAL MODAL
+════════════════════════════════════ -->
+<div id="docs-overlay" class="docs-overlay" role="dialog" aria-modal="true" aria-label="Documentation" onclick="if(event.target===this)App.closeDocs()">
+  <div class="docs-modal">
+    <button class="docs-close" onclick="App.closeDocs()">✕ Close</button>
+
+    <div class="docs-h1">O2 <span>Elite</span></div>
+    <div class="docs-tagline">Daily Architecture · 日々の設計 · v1.2.0</div>
+
+    <div class="docs-tabs">
+      <button class="docs-tab active" onclick="App.docsTab('readme',this)">README</button>
+      <button class="docs-tab" onclick="App.docsTab('manual',this)">User Manual</button>
+      <button class="docs-tab" onclick="App.docsTab('changelog',this)">Changelog</button>
+    </div>
+
+    <!-- README -->
+    <div id="docs-readme" class="docs-pane active">
+      <div class="docs-section">
+        <div class="docs-h2">What is O2 Elite?</div>
+        <p class="docs-p">O2 Elite is a zero-distraction, 24-hour <span class="docs-em">Daily Architecture</span> planner. It divides your day into four time domains, each containing four structured slots split into two practice phases (A & B). Every slot contains a curated set of microsteps that you can customise, time, and track with a built-in countdown timer.</p>
+        <p class="docs-p">The philosophy: design your day with intention before it begins. Architecture first — execution second.</p>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">Four Domains</div>
+        <div class="docs-domain-grid">
+          <div class="docs-domain-chip"><span class="docs-chip-name">朝 Morning</span><span class="docs-chip-sub">Awakening · Physical & Spiritual</span></div>
+          <div class="docs-domain-chip"><span class="docs-chip-name">午後 Afternoon</span><span class="docs-chip-sub">Focus · Deep Work</span></div>
+          <div class="docs-domain-chip"><span class="docs-chip-name">夕 Evening</span><span class="docs-chip-sub">Dissolving · Recovery & Reflection</span></div>
+          <div class="docs-domain-chip"><span class="docs-chip-name">夜 Night</span><span class="docs-chip-sub">Sleep Ritual · 30 min fixed</span></div>
+        </div>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">Key Features</div>
+        <ul class="docs-ul">
+          <li>Progressive slot unlock — complete Part A to reveal the next slot</li>
+          <li>Split A/B parts — each slot has two phases with proportional time allocation</li>
+          <li>Microstep timer with circular progress ring and step-by-step progression</li>
+          <li>Custom microsteps — add, name, and duration-tag your own steps</li>
+          <li>Domain auto-advance — completed domains unlock the next automatically</li>
+          <li>PWA installable — works offline, add to home screen on iOS & Android</li>
+          <li>Zero external dependencies after font load — runs entirely client-side</li>
+        </ul>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">Architecture Philosophy</div>
+        <p class="docs-p">Each domain is allocated <span class="docs-em">2–6 hours</span>. Hours are split across four slots using either the <span class="docs-em">Morning style</span> (short A / long B for first slot, long A / short B for rest) or <span class="docs-em">Evening style</span> (inverse). Night domain is a fixed 30-minute ritual.</p>
+        <p class="docs-p">The microstep timer distributes slot time evenly across steps unless you assign custom durations. A step with a custom duration overrides the default equal split.</p>
+      </div>
+
+      <div class="docs-version">O2 Elite v1.2.0 · Production Release · © 2025 · Single-file PWA</div>
+    </div>
+
+    <!-- USER MANUAL -->
+    <div id="docs-manual" class="docs-pane">
+      <div class="docs-section">
+        <div class="docs-h2">1 · Getting Started</div>
+        <ol class="docs-ol">
+          <li>Open the app. The <span class="docs-em">Morning</span> domain is shown by default.</li>
+          <li>Select your hours for the domain using the numbered buttons (2–6h) in the card header.</li>
+          <li>Slots appear below. Each slot is locked until the previous is partially or fully complete.</li>
+          <li>Work through slots in order: expand steps, run the timer, mark done.</li>
+          <li>Switch domains using the four-button strip (朝 / 午後 / 夕 / 夜) below the timeline.</li>
+        </ol>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">2 · Choosing Hours</div>
+        <p class="docs-p">Tap a number button (<span class="docs-kbd">2</span> <span class="docs-kbd">3</span> <span class="docs-kbd">4</span> <span class="docs-kbd">5</span> <span class="docs-kbd">6</span>) in a domain card header. Tapping the same number a second time deselects it and resets all progress for that domain. The timeline bar at the top updates to reflect allocated hours.</p>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">3 · Running the Timer</div>
+        <ol class="docs-ol">
+          <li>Expand a slot's Steps panel using <span class="docs-kbd">☰ Steps</span>.</li>
+          <li>Press <span class="docs-kbd">▶ Start</span> on Part A or Part B to open the timer overlay.</li>
+          <li>The ring counts down each step in sequence. The active step is highlighted with a large dot.</li>
+          <li>Use <span class="docs-kbd">✓ Done</span> to mark the current step complete and advance, or <span class="docs-kbd">→ Skip</span> to skip it.</li>
+          <li><span class="docs-kbd">⏸ Pause</span> freezes the countdown. Press again (shows ▶ Resume) to continue.</li>
+          <li>When all steps finish, the completion screen appears with your Done / Skipped totals.</li>
+          <li>Finishing a part automatically collapses it with a ✓ Done badge and reveals the next part or slot.</li>
+        </ol>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">4 · Managing Microsteps</div>
+        <ul class="docs-ul">
+          <li><span class="docs-em">Add a step:</span> Open the steps panel, type a name in the text field, optionally enter minutes in the number field, then click <span class="docs-kbd">+ Add</span> or press Enter.</li>
+          <li><span class="docs-em">Delete a step:</span> Click the <span class="docs-kbd">×</span> button on the right side of any step row.</li>
+          <li><span class="docs-em">Custom duration:</span> If any step has a custom duration (minutes), the slot label shows "X m custom". Steps without durations share the remaining time equally.</li>
+          <li><span class="docs-em">Night ritual:</span> The Night domain has a single Part A with a 30-minute default. Add custom steps to override this.</li>
+        </ul>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">5 · Slot Lifecycle</div>
+        <ul class="docs-ul">
+          <li><span class="docs-em">Locked:</span> Hidden until the previous slot's Part A is complete.</li>
+          <li><span class="docs-em">Active:</span> Visible and interactive.</li>
+          <li><span class="docs-em">Done:</span> Dimmed with strikethrough. Timer and step controls are disabled.</li>
+          <li><span class="docs-em">Reopen:</span> A faint <span class="docs-kbd">↩ Reopen</span> button appears on done slots — tap to un-complete and cascade-clear all subsequent slots.</li>
+        </ul>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">6 · Installing as PWA</div>
+        <p class="docs-p">When your browser supports install prompts, an <span class="docs-em">⊕ Install App</span> link appears in the top-right navigation. Tap it to add O2 Elite to your home screen. On iOS Safari, use Share → "Add to Home Screen" manually.</p>
+        <p class="docs-p">Once installed, O2 Elite runs in standalone fullscreen mode with no browser chrome. A service worker caches the app for full offline use.</p>
+      </div>
+
+      <div class="docs-rule"></div>
+
+      <div class="docs-section">
+        <div class="docs-h2">7 · Tips & Shortcuts</div>
+        <ul class="docs-ul">
+          <li>Press <span class="docs-kbd">Enter</span> in the microstep name or duration field to add the step instantly.</li>
+          <li>Tap outside the timer overlay to close it (equivalent to ✕ Close).</li>
+          <li>Domain tabs with strikethrough kanji are fully complete for today.</li>
+          <li>The summary bar at the bottom shows total hours placed, unallocated hours, and a zen quote that advances as you fill domains.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CHANGELOG -->
+    <div id="docs-changelog" class="docs-pane">
+      <div class="docs-section">
+        <div class="docs-h2">v1.2.0 · Production Release</div>
+        <ul class="docs-ul">
+          <li>Added integrated README & User Manual accessible from the nav bar (? button)</li>
+          <li>Fixed: <code style="font-family:Space Mono,monospace;font-size:0.46rem">timerRitual</code> now correctly sets <code style="font-family:Space Mono,monospace;font-size:0.46rem">did</code>, <code style="font-family:Space Mono,monospace;font-size:0.46rem">si</code>, <code style="font-family:Space Mono,monospace;font-size:0.46rem">part</code> on timer state so night ritual microstep strikethroughs and done-part badge work correctly</li>
+          <li>Fixed: footer styles now included inline — no broken layout when served as standalone HTML</li>
+          <li>Fixed: <code style="font-family:Space Mono,monospace;font-size:0.46rem">partBHidden</code> dead variable removed; Part B visibility correctly driven by <code style="font-family:Space Mono,monospace;font-size:0.46rem">part-done</code> class</li>
+          <li>Fixed: <code style="font-family:Space Mono,monospace;font-size:0.46rem">ms-toggle-btn</code> button state now correctly updates count after add/delete without full re-render</li>
+          <li>Fixed: timer close via backdrop click now reliably removes the overlay even when overlay element is re-queried after render cycles</li>
+          <li>Fixed: <code style="font-family:Space Mono,monospace;font-size:0.46rem">doneParts.forEach</code> delete-while-iterating replaced with safe two-pass deletion</li>
+          <li>Added: PWA manifest inlined as data URI — works as single .html file without external manifest.json</li>
+          <li>Added: inline Service Worker registration with no-op fallback for file:// protocol</li>
+          <li>Added: <code style="font-family:Space Mono,monospace;font-size:0.46rem">touch-action: manipulation</code> to all interactive elements to eliminate 300ms tap delay</li>
+          <li>Added: ARIA roles on timer overlay and docs overlay for accessibility</li>
+          <li>Improved: docs modal closes on backdrop click and Escape key</li>
+        </ul>
+      </div>
+
+      <div class="docs-section">
+        <div class="docs-h2">v1.1.0</div>
+        <ul class="docs-ul">
+          <li>Initial domain auto-advance on completion</li>
+          <li>Progressive slot unlock via halfDoneSlots</li>
+          <li>Reopen slot with cascade un-complete</li>
+          <li>Custom microstep durations with proportional timer</li>
+          <li>PWA install prompt integration</li>
+        </ul>
+      </div>
+
+      <div class="docs-version">O2 Elite · Changelog · Built for daily consistency</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     BRAND NAVIGATION
+════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav__logo" aria-label="O2 Elite Logo">
+    <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="38" height="38" rx="2" fill="#111111"/>
+      <path d="M19,19 C19,13.5 14.8,10.5 11.5,12 C8.2,13.5 7,16.5 7,19 C7,21.5 8.2,24.5 11.5,26 C14.8,27.5 19,24.5 19,19 C19,13.5 23.2,10.5 26.5,12 C29.8,13.5 31,16.5 31,19 C31,21.5 29.8,24.5 26.5,26 C23.2,27.5 19,24.5 19,19Z"
+        stroke="rgba(255,255,255,0.55)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <circle cx="19" cy="19" r="1.2" fill="rgba(255,255,255,0.7)"/>
+    </svg>
+  </div>
+
+  <div class="nav__brand">
+    <span class="nav__name">O2 <span>Elite</span></span>
+    <span class="nav__tagline">Daily Architecture · 日々の設計</span>
+  </div>
+
+  <div class="nav__right">
+    <!-- Help / Docs button -->
+    <button class="nav__help" onclick="App.openDocs()" aria-label="Open README and User Manual" title="README & User Manual">?</button>
+    <!-- Date + Install -->
+    <div class="nav__meta">
+      <span class="nav__date" id="nav-date"></span>
+      <span class="nav__install" id="nav-install" onclick="App.installPWA()">⊕ Install App</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════ -->
+<div class="wrap">
+
+  <div class="page-head">
+    <span class="page-head__kanji">日々の設計</span>
+    <span class="page-head__sub">24 Hours · Four Domains · One Life</span>
+    <div class="page-head__rule">
+      <div class="hd"></div><div class="hd"></div><div class="hd"></div>
+    </div>
+  </div>
+
+  <!-- Timeline Bar -->
+  <div class="timeline">
+    <div class="tl-labels">
+      <span class="tl-lbl">Morning</span>
+      <span class="tl-lbl">Afternoon</span>
+      <span class="tl-lbl">Evening</span>
+      <span class="tl-lbl">Night</span>
+    </div>
+    <div class="tl-bar">
+      <div id="ts-morning"   class="tl-seg" style="background:rgba(255,255,255,0.55)"></div>
+      <div id="ts-afternoon" class="tl-seg" style="background:rgba(255,255,255,0.38)"></div>
+      <div id="ts-evening"   class="tl-seg" style="background:rgba(255,255,255,0.22)"></div>
+      <div id="ts-night"     class="tl-seg" style="background:rgba(255,255,255,0.1)"></div>
+    </div>
+  </div>
+
+  <!-- Domain Grid -->
+  <div class="domain-nav" id="domain-nav"></div>
+  <div class="grid" id="grid"></div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="sum-row">
+      <div class="sum-item">
+        <span class="sum-val" id="s-placed" style="color:var(--ink)">0</span>
+        <span class="sum-lbl">Hours Placed</span>
+      </div>
+      <div class="sum-div"></div>
+      <div class="sum-item">
+        <span class="sum-val" style="color:var(--muted)">24</span>
+        <span class="sum-lbl">Total Hours</span>
+      </div>
+      <div class="sum-div"></div>
+      <div class="sum-item">
+        <span class="sum-val" id="s-free" style="color:var(--muted)">24</span>
+        <span class="sum-lbl">Unallocated</span>
+      </div>
+    </div>
+    <p class="sum-zen" id="zen-q">"Begin by sitting still — let the day arrange itself."</p>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- Footer -->
+<footer class="foot">
+  <div class="foot__logo" aria-hidden="true">
+    <svg viewBox="0 0 22 22" fill="none">
+      <path d="M11,11 C11,7.8 8.8,6.2 6.6,7 C4.4,7.8 3.5,9.5 3.5,11 C3.5,12.5 4.4,14.2 6.6,15 C8.8,15.8 11,14.2 11,11 C11,7.8 13.2,6.2 15.4,7 C17.6,7.8 18.5,9.5 18.5,11 C18.5,12.5 17.6,14.2 15.4,15 C13.2,15.8 11,14.2 11,11Z"
+        stroke="rgba(255,255,255,0.45)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+    </svg>
+  </div>
+  <span class="foot__text"><span>O2 Elite</span> · Daily Architecture · Consistency</span>
+</footer>
+
+<!-- ════════════════════════════════════
+     TIMER OVERLAY
+════════════════════════════════════ -->
+<div id="overlay" class="off" role="dialog" aria-modal="true" aria-label="Timer">
+
+  <div id="tmr-screen" class="tmr">
+    <div id="tmr-domain" class="tmr-domain"></div>
+    <div id="tmr-slot"   class="tmr-slot"></div>
+    <div id="tmr-step"   class="tmr-step"></div>
+
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="ring-bg"  cx="100" cy="100" r="88"/>
+        <circle class="ring-arc" id="ring-arc" cx="100" cy="100" r="88"
+                stroke="rgba(255,255,255,0.45)" stroke-dasharray="552.92" stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-center">
+        <div id="tmr-time" class="ring-time">00:00</div>
+        <div id="tmr-lbl"  class="ring-lbl">remaining</div>
+      </div>
+    </div>
+
+    <div id="tmr-dots" class="tmr-dots" data-sig=""></div>
+
+    <div class="tmr-meta">
+      <span id="tmr-step-cnt">STEP 0 / 0</span>
+      <span id="tmr-done-cnt">0 DONE · 0 SKIPPED</span>
+    </div>
+
+    <div class="ctrls">
+      <button id="ctrl-done"  class="ctrl ctrl-done"  onclick="App.timerDone()">✓ Done</button>
+      <button id="ctrl-skip"  class="ctrl ctrl-skip"  onclick="App.timerSkip()">→ Skip</button>
+      <button id="ctrl-pause" class="ctrl ctrl-pause" onclick="App.timerPause()">⏸ Pause</button>
+      <button                 class="ctrl ctrl-close" onclick="App.timerClose()">✕ Close</button>
+    </div>
+  </div>
+
+  <!-- Complete screen -->
+  <div id="done-screen" class="complete gone">
+    <div class="c-icon">🌿</div>
+    <div id="c-title" class="c-title"></div>
+    <div id="c-sub"   class="c-sub"></div>
+    <div class="c-stats">
+      <div class="cstat"><span id="c-done"  class="cstat-val"></span><span class="cstat-lbl">Completed</span></div>
+      <div class="cstat"><span id="c-skip"  class="cstat-val" style="color:rgba(255,255,255,0.38)"></span><span class="cstat-lbl">Skipped</span></div>
+      <div class="cstat"><span id="c-total" class="cstat-val" style="color:rgba(255,255,255,0.38)"></span><span class="cstat-lbl">Total Steps</span></div>
+    </div>
+    <p class="c-zen">"The step is taken. Rest in the completion."</p>
+    <button id="c-close-btn" class="c-close" onclick="App.timerClose()">Close</button>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   O2 ELITE APP v1.2.0 — Production Release
+   Single IIFE, public API via returned object.
+════════════════════════════════════════════════════ */
+var App = (function () {
+  'use strict';
+
+  /* ─── DOMAIN CONFIG ──────────────────── */
+  var DOMAINS = [
+    {
+      id:'morning', cls:'m', kanji:'朝',
+      nameEn:'Morning', nameJp:'あさ · asa',
+      badge:'Awakening', sty:'M', color:'rgba(255,255,255,0.82)',
+      slots:[
+        { ico:'🍵', name:'Start & Breakfast', jp:'はじまり',
+          pAIco:'🌅', pAName:'Morning Start',  pAJp:'はじまり',
+          pBIco:'🥣', pBName:'Breakfast',       pBJp:'あさごはん', first:true },
+        { ico:'🧘', name:'Meditation', jp:'めいそう',
+          pAIco:'🫁', pAName:'Aanapan · Vipassna', pAJp:'あなぱな',
+          pBIco:'✨', pBName:'Metta & Kriya',       pBJp:'めった' },
+        { ico:'🏃', name:'Exercise', jp:'うんどう',
+          pAIco:'💪', pAName:'Exercise',             pAJp:'うんどう',
+          pBIco:'🌬', pBName:'Pranayam & Chief Aim', pBJp:'プラーナーヤーマ' },
+        { ico:'📖', name:'Study / Practice', jp:'しゅぎょう',
+          pAIco:'📖', pAName:'Study',            pAJp:'べんきょう',
+          pBIco:'🎭', pBName:'Acting Practice', pBJp:'えんぎ' },
+      ]
+    },
+    {
+      id:'afternoon', cls:'a', kanji:'午後',
+      nameEn:'Afternoon', nameJp:'ごご · gogo',
+      badge:'Focus', sty:'M', color:'rgba(255,255,255,0.82)',
+      slots:[
+        { ico:'🌤', name:'Start & Lunch', jp:'ひるめし',
+          pAIco:'🌤', pAName:'Afternoon Start', pAJp:'はじまり',
+          pBIco:'🍱', pBName:'Lunch',            pBJp:'ひるめし', first:true },
+        { ico:'⚡', name:'Deep Work I', jp:'しゅうちゅう 一',
+          pAIco:'⚡', pAName:'Focus Block',  pAJp:'しゅうちゅう',
+          pBIco:'☕', pBName:'Rest',          pBJp:'やすみ' },
+        { ico:'⚡', name:'Deep Work II', jp:'しゅうちゅう 二',
+          pAIco:'⚡', pAName:'Focus Block',  pAJp:'しゅうちゅう',
+          pBIco:'☕', pBName:'Rest',          pBJp:'やすみ' },
+        { ico:'⚡', name:'Deep Work III', jp:'しゅうちゅう 三',
+          pAIco:'⚡', pAName:'Focus Block',  pAJp:'しゅうちゅう',
+          pBIco:'☕', pBName:'Rest',          pBJp:'やすみ' },
+      ]
+    },
+    {
+      id:'evening', cls:'e', kanji:'夕',
+      nameEn:'Evening', nameJp:'ゆうがた · yūgata',
+      badge:'Dissolving', sty:'E', color:'rgba(255,255,255,0.82)',
+      slots:[
+        { ico:'🌆', name:'Start & Dinner', jp:'ゆうしょく',
+          pAIco:'🚗', pAName:'Evening Commute', pAJp:'つうきん',
+          pBIco:'🍜', pBName:'Dinner',           pBJp:'ゆうしょく', first:true },
+        { ico:'🏋', name:'Pre Workout & Gym', jp:'うんどう',
+          pAIco:'🥤', pAName:'Pre Workout Snacks', pAJp:'スナック',
+          pBIco:'🏋', pBName:'Gym / Cardio',        pBJp:'ジム' },
+        { ico:'📔', name:'Diary & Meditation', jp:'にっき · めいそう',
+          pAIco:'📔', pAName:'Diary',      pAJp:'にっき',
+          pBIco:'🧘', pBName:'Meditation', pBJp:'めいそう' },
+        { ico:'🎉', name:'Celebration & Study', jp:'おいわい · しゅぎょう',
+          pAIco:'🎉', pAName:'Celebration',      pAJp:'おいわい',
+          pBIco:'📖', pBName:'Study / Practice', pBJp:'しゅぎょう' },
+      ]
+    },
+    {
+      id:'night', cls:'n', kanji:'夜',
+      nameEn:'Night', nameJp:'よる · yoru',
+      badge:'Sleep Ritual', color:'rgba(255,255,255,0.55)', isNight:true,
+      slots:[
+        { ico:'🌙', name:'Sleep Preparation Ritual', jp:'ねむりのしたく',
+          pAIco:'🌙', pAName:'Sleep Ritual', pAJp:'ねむりのしたく',
+          pBIco:'',   pBName:'',             pBJp:'' }
+      ]
+    },
+  ];
+
+  var ZEN = [
+    '"Begin by sitting still — let the day arrange itself."',
+    '"The day is long. The breath is short. Begin."',
+    '"In the space between moments, the work is done."',
+    '"Order is the first beauty."',
+    '"Empty the cup before filling it."',
+    '"Move with the light, rest with the dark."',
+  ];
+
+  var RING_C = 2 * Math.PI * 88;
+
+  /* ─── STATE ──────────────────────────── */
+  var hrs           = { morning:null, afternoon:null, evening:null, night:null };
+  var msSeq         = 1;
+  var msStore       = {};
+  var doneSlots     = { morning: new Set(), afternoon: new Set(), evening: new Set(), night: new Set() };
+  var halfDoneSlots = { morning: new Set(), afternoon: new Set(), evening: new Set(), night: new Set() };
+  var doneParts     = new Set();
+  var activeDomain  = 'morning';
+
+  /* ─── DOMAIN HELPERS ─────────────────── */
+  function domainComplete(did) {
+    var d = DOMAINS.find(function(x){ return x.id === did; });
+    if (!d) return false;
+    if (d.isNight) return doneParts.has('night:0:A');
+    return d.slots.every(function(_, i){ return doneSlots[did].has(i); });
+  }
+
+  function advanceActiveDomain() {
+    var ids = DOMAINS.map(function(d){ return d.id; });
+    var cur = ids.indexOf(activeDomain);
+    for (var i = cur + 1; i < ids.length; i++) {
+      if (!domainComplete(ids[i])) { activeDomain = ids[i]; return; }
+    }
+  }
+
+  function msArrA(did, si) {
+    var k = did + ':' + si + ':A';
+    if (!msStore[k]) msStore[k] = [];
+    return msStore[k];
+  }
+  function msArrB(did, si) {
+    var k = did + ':' + si + ':B';
+    if (!msStore[k]) msStore[k] = [];
+    return msStore[k];
+  }
+
+  /* ─── SEED DATA ──────────────────────── */
+  (function seed() {
+    function fill(did, si, part, names) {
+      var k = did + ':' + si + ':' + part;
+      msStore[k] = names.map(function(n){ return { id: msSeq++, name: n, dur: 0 }; });
+    }
+    fill('morning', 0, 'A', ['4 Sati','Drink Water','Sajada','Self Declaration','Stretch','Toilet','Netrasnana','Warm Water +','Chankraman','Shauch','Datun','Vajoo']);
+    fill('morning', 0, 'B', ['Breakfast','Sun Bath','Preparation','Commute']);
+    fill('morning', 1, 'A', ['Aanapan','Vipassna']);
+    fill('morning', 1, 'B', ['Metta','Warm Water','Gudmasage/Neti/Jaldhauti','Yognidra','Vajoo']);
+    fill('morning', 2, 'A', ['Foam Roller','Warm Up','Surya Namaskar','Shadow Boxing','Kicks & Blocks','Gymnastics','Shavasan','Stretch']);
+    fill('morning', 2, 'B', ['Kapalbhati','Anulom Vilom','Ujjayi','Bhastrika','Shitli / Shitkari','Bhramri','Vayusar','Agnisar','Uddiyan','Affirm','Visualise','Write','Gratitude Journal']);
+    fill('morning', 3, 'A', ['Om','Saregama','Barakhadi','AEIOU','Sounds','T&L Vibration','TEF Exercise','Philosophy','Script/Craft']);
+    fill('morning', 3, 'B', ['Profile','Diction','Visualisation','Story Telling','Impromptu','Will','Ads','Script','9 Rasa','Skit','Character Acting']);
+    fill('evening', 0, 'A', ['Audiobook','Music','Follow Up','Daily Report','Commute']);
+    fill('evening', 0, 'B', ['Vajoo','Metta','Dinner','Walk']);
+    fill('evening', 1, 'A', ['Drink Water','Jaccusi','Snacks','Powernap']);
+    fill('evening', 1, 'B', ['Foam Roller','Warm Up','Suryanamaskar','Pull Ups','Squat','Push Ups','Shoulder Press','Tricep Extensions','Bicep Curl','Crunch','Leg Raise']);
+    fill('evening', 2, 'A', ['Dairy','Correction','Next Day Goal Setting','Next Day Plan']);
+    fill('evening', 2, 'B', ['Aanapan','Vipassna']);
+    fill('evening', 3, 'A', ['Dance','Sing','Q&A']);
+    fill('evening', 3, 'B', ['Audition Preparation','Rehearsals','Script/Craft Reading Writing']);
+    fill('night',   0, 'A', ['Warm Water','Chankraman','Shauch','Datun','Bath','Tratak','Affirm','Visualise','Write','Gratitude Journal']);
+  }());
+
+  /* ─── MATH ───────────────────────────── */
+  function calcTimes(h, sty) {
+    var u = (h * 60) / 12;
+    return sty === 'M'
+      ? [{a:u,b:u*2},{a:u*2,b:u},{a:u*2,b:u},{a:u*2,b:u}]
+      : [{a:u*2,b:u},{a:u,b:u*2},{a:u,b:u*2},{a:u,b:u*2}];
+  }
+
+  function fmtMin(m) {
+    m = Math.round(m);
+    if (m >= 60) { var h = Math.floor(m/60), r = m%60; return r ? h+'h '+r+'m' : h+'h'; }
+    return m + 'm';
+  }
+
+  function fmtSec(s) {
+    s = Math.max(0, Math.round(s));
+    return pad2(Math.floor(s/60)) + ':' + pad2(s % 60);
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ─── DOM UTILS ──────────────────────── */
+  function $ (id)       { return document.getElementById(id); }
+  function tx(id, v)    { var e=$(id); if(e) e.textContent = v; }
+  function sc(id, p, v) { var e=$(id); if(e) e.style[p] = v; }
+  function gc(el, c)    { if(el) el.classList.add(c); }
+  function rc(el, c)    { if(el) el.classList.remove(c); }
+
+  /* ─── RENDER ─────────────────────────── */
+  function render() {
+    var grid = $('grid');
+    if (!grid) return;
+
+    if (domainComplete(activeDomain)) advanceActiveDomain();
+
+    var d = DOMAINS.find(function(x){ return x.id === activeDomain; });
+    grid.innerHTML = d ? buildCard(d) : '';
+
+    var nav = $('domain-nav');
+    if (nav) {
+      nav.innerHTML = DOMAINS.map(function(dom) {
+        var isActive = dom.id === activeDomain;
+        var isDone   = domainComplete(dom.id);
+        var cls = 'dnav-btn' + (isActive ? ' dnav-active' : '') + (isDone ? ' dnav-done' : '');
+        return '<button class="' + cls + '" onclick="App.setDomain(\'' + dom.id + '\')">' +
+               '<span class="dnav-kanji">' + dom.kanji + '</span>' +
+               '<span class="dnav-name">' + dom.nameEn + '</span>' +
+               '</button>';
+      }).join('');
+    }
+
+    var placed = 0;
+    DOMAINS.forEach(function(dom) {
+      var h = hrs[dom.id];
+      var seg = $('ts-' + dom.id);
+      if (seg) seg.style.flex = dom.isNight ? 0.5 : (h || 1);
+      if (h && !dom.isNight) placed += h;
+    });
+    tx('s-placed', placed);
+    tx('s-free',   24 - placed);
+
+    var allSet = DOMAINS.every(function(dom){ return hrs[dom.id] !== null; });
+    var q = $('zen-q');
+    if (q) q.textContent = allSet
+      ? '"The architecture is complete. Now live it."'
+      : ZEN[Math.floor(placed / 4) % ZEN.length];
+  }
+
+  /* ─── CARD BUILDER ───────────────────── */
+  function buildCard(d) {
+    var h = hrs[d.id];
+    var badge = h ? h + 'h · ' + d.badge : d.badge;
+
+    if (d.isNight) {
+      return [
+        '<div class="card ' + d.cls + '">',
+          '<div class="card-hd">',
+            '<div class="card-title">',
+              '<span class="kanji">' + d.kanji + '</span>',
+              '<div class="cnames">',
+                '<span class="cname">'    + d.nameEn + '</span>',
+                '<span class="cname-jp">' + d.nameJp + '</span>',
+              '</div>',
+              '<span class="badge">' + d.badge + '</span>',
+            '</div>',
+            '<div class="hr-row">',
+              '<span class="hr-lbl" style="opacity:0.45">Fixed · 30 min ritual</span>',
+            '</div>',
+          '</div>',
+          buildRitual(d),
+        '</div>',
+      ].join('');
+    }
+
+    var hbtns = [2,3,4,5,6].map(function(n) {
+      return '<button class="hbtn' + (h===n ? ' on' : '') + '"' +
+             ' onclick="App.pick(\'' + d.id + '\',' + n + ')">' + n + '</button>';
+    }).join('');
+
+    var body = !h
+      ? buildPH('Choose hours above<br>to shape the time')
+      : '<div class="slots-wrap">' +
+          calcTimes(h, d.sty).map(function(t, i) { return buildSlot(d, d.slots[i], t, i); }).join('') +
+        '</div>';
+
+    return [
+      '<div class="card ' + d.cls + '">',
+        '<div class="card-hd">',
+          '<div class="card-title">',
+            '<span class="kanji">' + d.kanji + '</span>',
+            '<div class="cnames">',
+              '<span class="cname">'    + d.nameEn + '</span>',
+              '<span class="cname-jp">' + d.nameJp + '</span>',
+            '</div>',
+            '<span class="badge">' + badge + '</span>',
+          '</div>',
+          '<div class="hr-row"><span class="hr-lbl">Hours ▸</span>' + hbtns + '</div>',
+        '</div>',
+        body,
+      '</div>',
+    ].join('');
+  }
+
+  function buildPH(msg) {
+    return '<div class="slots-wrap"><div class="ph"><div class="ph-ring"></div>' +
+           '<div class="ph-txt">' + msg + '</div></div></div>';
+  }
+
+  function buildRitual(d) {
+    var did = d.id;
+    var ms  = msArrA(did, 0);
+    var cust = ms.reduce(function(s,m){ return s+(m.dur||0); }, 0);
+    var lbl  = cust > 0 ? cust + 'm custom' : '30m';
+
+    var items = ms.map(function(m) {
+      return '<div class="ms-item" id="msi-' + did + '-0-A-' + m.id + '">' +
+             '<span class="ms-name">' + esc(m.name) + '</span>' +
+             (m.dur ? '<span class="ms-tag">' + m.dur + 'm</span>' : '') +
+             '<button class="ms-del" onclick="App.delMSP(\'' + did + '\',0,\'A\',' + m.id + ')">×</button>' +
+             '</div>';
+    }).join('');
+
+    return [
+      '<div class="slots-wrap"><div class="slot first" id="slot-' + did + '-0">',
+        '<div class="slot-top">',
+          '<span class="slot-num">01</span>',
+          '<span class="slot-ico">🌙</span>',
+          '<div class="slot-lbl">',
+            '<div class="slot-name">Sleep Preparation Ritual</div>',
+            '<div class="slot-jp">ねむりのしたく</div>',
+          '</div>',
+          '<span class="dur" style="font-size:0.52rem;margin-left:auto;" id="sdur-' + did + '-0-A">' + lbl + '</span>',
+        '</div>',
+        '<div class="bar-row" style="padding-bottom:0.12rem;"><div class="track"><div class="track-b" style="flex:100"></div></div></div>',
+        '<div class="split-parts"><div class="split-part">',
+          '<div class="split-part-hd">',
+            '<div class="split-part-label"><span class="sp-ico">🌙</span><span>Sleep Ritual</span><span class="sp-jp">ねむりのしたく</span></div>',
+            '<div style="display:flex;align-items:center;gap:0.45rem;">',
+              '<button class="ms-toggle-btn" id="msbtn-' + did + '-0-A" onclick="App.toggleMS(\'mspanel-' + did + '-0-A\',this)">☰ Steps' + (ms.length > 0 ? ' · ' + ms.length : '') + '</button>',
+              '<button class="split-start-btn" onclick="App.timerRitual()">▶ Start</button>',
+            '</div>',
+          '</div>',
+          '<div class="split-ms" id="mspanel-' + did + '-0-A">',
+            '<div class="ms-list" id="msl-' + did + '-0-A">' + items + '</div>',
+            '<div class="ms-form">',
+              '<input class="ms-in" id="msin-' + did + '-0-A" placeholder="Add microstep…" autocomplete="off"' +
+              ' onkeydown="if(event.key===\'Enter\'){event.preventDefault();App.addMSP(\'' + did + '\',0,\'A\');}">',
+              '<input class="ms-dur" id="msdur-' + did + '-0-A" type="number" min="1" max="999" placeholder="min"' +
+              ' onkeydown="if(event.key===\'Enter\'){event.preventDefault();App.addMSP(\'' + did + '\',0,\'A\');}">',
+              '<button class="ms-add-btn" onclick="App.addMSP(\'' + did + '\',0,\'A\')">+ Add</button>',
+            '</div>',
+          '</div>',
+        '</div></div>',
+      '</div></div>',
+    ].join('');
+  }
+
+  /* ─── SLOT BUILDER ───────────────────── */
+  function buildSlot(d, sd, t, idx) {
+    var total = Math.round(t.a + t.b);
+    var pA    = ((t.a / (t.a + t.b)) * 100).toFixed(1);
+    var pB    = (100 - parseFloat(pA)).toFixed(1);
+    var did   = d.id;
+    var delay = (idx * 0.06).toFixed(2) + 's';
+
+    var isDone   = doneSlots[did].has(idx);
+    var isLocked;
+    if (idx === 1) {
+      isLocked = !halfDoneSlots[did].has(0);
+    } else if (idx > 1) {
+      isLocked = !doneSlots[did].has(idx - 1);
+    } else {
+      isLocked = false;
+    }
+
+    var amsA  = msArrA(did, idx);
+    var amsB  = msArrB(did, idx);
+    var custA = amsA.reduce(function(s,m){ return s+(m.dur||0); }, 0);
+    var custB = amsB.reduce(function(s,m){ return s+(m.dur||0); }, 0);
+    var lblA  = custA > 0 ? fmtMin(custA)+' custom' : fmtMin(Math.round(t.a));
+    var lblB  = custB > 0 ? fmtMin(custB)+' custom' : fmtMin(Math.round(t.b));
+
+    var cls = 'slot' + (idx===0?' first':'');
+    if (isDone)   cls += ' slot-done';
+    if (isLocked) cls += ' slot-locked';
+
+    var accentColor = d.color;
+
+    function partIsDone(part) { return doneParts.has(did + ':' + idx + ':' + part); }
+    function partCls(part)    { return partIsDone(part) ? ' part-done' : ''; }
+
+    function doneBadge(part) {
+      return partIsDone(part)
+        ? '<span class="part-done-badge" style="background:' + accentColor + '">✓ Done</span>'
+        : '';
+    }
+
+    function partMS(list, part) {
+      var panelId = 'mspanel-' + did + '-' + idx + '-' + part;
+      var items = list.map(function(m) {
+        var struck = partIsDone(part) ? ' ms-struck' : '';
+        return '<div class="ms-item" id="msi-' + did + '-' + idx + '-' + part + '-' + m.id + '">' +
+               '<span class="ms-name' + struck + '">' + esc(m.name) + '</span>' +
+               (m.dur ? '<span class="ms-tag">' + m.dur + 'm</span>' : '') +
+               '<button class="ms-del" onclick="App.delMSP(\'' + did + '\',' + idx + ',\'' + part + '\',' + m.id + ')">×</button>' +
+               '</div>';
+      }).join('');
+      return '<div class="split-ms" id="' + panelId + '">' +
+             '<div class="ms-list" id="msl-' + did + '-' + idx + '-' + part + '">' + items + '</div>' +
+             '<div class="ms-form">' +
+             '<input class="ms-in" id="msin-' + did + '-' + idx + '-' + part + '" placeholder="Add microstep…" autocomplete="off"' +
+             ' onkeydown="if(event.key===\'Enter\'){event.preventDefault();App.addMSP(\'' + did + '\',' + idx + ',\'' + part + '\');}">' +
+             '<input class="ms-dur" id="msdur-' + did + '-' + idx + '-' + part + '" type="number" min="1" max="999" placeholder="min"' +
+             ' onkeydown="if(event.key===\'Enter\'){event.preventDefault();App.addMSP(\'' + did + '\',' + idx + ',\'' + part + '\');}">'+
+             '<button class="ms-add-btn" onclick="App.addMSP(\'' + did + '\',' + idx + ',\'' + part + '\')">+ Add</button>' +
+             '</div>' +
+             '</div>';
+    }
+
+    function toggleBtn(part) {
+      var list = part === 'A' ? amsA : amsB;
+      var count = list.length > 0 ? ' · ' + list.length : '';
+      var panelId = 'mspanel-' + did + '-' + idx + '-' + part;
+      return '<button class="ms-toggle-btn" id="msbtn-' + did + '-' + idx + '-' + part + '"' +
+             ' onclick="App.toggleMS(\'' + panelId + '\',this)">☰ Steps' + count + '</button>';
+    }
+
+    var actionBtn = isDone
+      ? '<button class="complete-slot-btn reopen-btn" onclick="App.reopenSlot(\'' + did + '\',' + idx + ')" style="font-size:0.42rem;margin-top:0;margin-bottom:0.44rem;">↩ Reopen</button>'
+      : '<button class="complete-slot-btn" onclick="App.completeSlot(\'' + did + '\',' + idx + ')">✓ Mark Slot Complete — unlock next</button>';
+
+    return [
+      '<div class="' + cls + '" id="slot-' + did + '-' + idx + '"' +
+           ' style="animation-delay:' + delay + '">',
+        '<div class="slot-top">',
+          '<span class="slot-num">' + pad2(idx+1) + '</span>',
+          '<span class="slot-ico">' + sd.ico + '</span>',
+          '<div class="slot-lbl"><div class="slot-name">' + sd.name + '</div><div class="slot-jp">' + sd.jp + '</div></div>',
+          '<span class="dur" style="font-size:0.52rem;opacity:0.55;margin-left:auto;">' + fmtMin(total) + '</span>',
+        '</div>',
+        '<div class="bar-row" style="padding-bottom:0.12rem;"><div class="track"><div class="track-a" style="flex:' + pA + '"></div><div class="track-b" style="flex:' + pB + '"></div></div></div>',
+        '<div class="split-parts">',
+          '<div class="split-part' + partCls('A') + '" id="splitpart-' + did + '-' + idx + '-A">',
+            '<div class="split-part-hd">',
+              '<div class="split-part-label"><span class="sp-ico">' + sd.pAIco + '</span><span>' + esc(sd.pAName) + '</span><span class="sp-jp">' + sd.pAJp + '</span></div>',
+              '<div style="display:flex;align-items:center;gap:0.45rem;">' + doneBadge('A') + toggleBtn('A') + '<span class="split-dur" id="sdur-' + did + '-' + idx + '-A">' + lblA + '</span><button class="split-start-btn" onclick="App.timerStartPart(\'' + did + '\',' + idx + ',\'A\')">▶ Start</button></div>',
+            '</div>',
+            partMS(amsA, 'A'),
+          '</div>',
+          '<div class="split-part' + partCls('B') + '" id="splitpart-' + did + '-' + idx + '-B">',
+            '<div class="split-part-hd">',
+              '<div class="split-part-label"><span class="sp-ico">' + sd.pBIco + '</span><span>' + esc(sd.pBName) + '</span><span class="sp-jp">' + sd.pBJp + '</span></div>',
+              '<div style="display:flex;align-items:center;gap:0.45rem;">' + doneBadge('B') + toggleBtn('B') + '<span class="split-dur" id="sdur-' + did + '-' + idx + '-B">' + lblB + '</span><button class="split-start-btn" onclick="App.timerStartPart(\'' + did + '\',' + idx + ',\'B\')">▶ Start</button></div>',
+            '</div>',
+            partMS(amsB, 'B'),
+          '</div>',
+        '</div>',
+        actionBtn,
+      '</div>',
+    ].join('');
+  }
+
+  /* ─── STEPS TOGGLE ──────────────────── */
+  function toggleMS(panelId, btn) {
+    var panel = $(panelId);
+    if (!panel) return;
+    var isOpen = panel.classList.contains('ms-open');
+    if (isOpen) {
+      panel.classList.remove('ms-open');
+      if (btn) btn.classList.remove('ms-open');
+    } else {
+      panel.classList.add('ms-open');
+      if (btn) btn.classList.add('ms-open');
+      var inp = panel.querySelector('.ms-in');
+      if (inp) setTimeout(function(){ inp.focus(); }, 50);
+    }
+  }
+
+  /* ─── PICK HOURS ─────────────────────── */
+  function pick(did, h) {
+    hrs[did] = hrs[did] === h ? null : h;
+    doneSlots[did]     = new Set();
+    halfDoneSlots[did] = new Set();
+    // BUG FIX: safe two-pass delete to avoid mutating Set while iterating
+    var toDelete = [];
+    doneParts.forEach(function(k) {
+      if (k.startsWith(did + ':')) toDelete.push(k);
+    });
+    toDelete.forEach(function(k){ doneParts.delete(k); });
+    render();
+  }
+
+  function setDomain(did) {
+    activeDomain = did;
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ─── PROGRESSIVE SLOT UNLOCK ────────── */
+  function completeSlot(did, si) {
+    doneSlots[did].add(si);
+    if (si === 0) halfDoneSlots[did].add(0);
+    if (domainComplete(did)) {
+      setTimeout(function() {
+        advanceActiveDomain();
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 400);
+    } else {
+      render();
+      setTimeout(function() {
+        var next = $('slot-' + did + '-' + (si + 1));
+        if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+  }
+
+  function reopenSlot(did, si) {
+    doneSlots[did].delete(si);
+    if (si === 0) halfDoneSlots[did].delete(0);
+    var d = DOMAINS.find(function(x){ return x.id === did; });
+    if (d && d.slots) {
+      for (var i = si; i < d.slots.length; i++) {
+        doneSlots[did].delete(i);
+        doneParts.delete(did + ':' + i + ':A');
+        doneParts.delete(did + ':' + i + ':B');
+      }
+    }
+    render();
+  }
+
+  /* ─── MICROSTEP CRUD ─────────────────── */
+  function addMSP(did, si, part) {
+    var nEl = $('msin-'  + did + '-' + si + '-' + part);
+    var dEl = $('msdur-' + did + '-' + si + '-' + part);
+    if (!nEl) return;
+    var name = nEl.value.trim();
+    if (!name) { nEl.focus(); return; }
+    var dur = parseInt(dEl.value, 10);
+    dur = (isNaN(dur) || dur < 1) ? 0 : dur;
+    var ms = { id: msSeq++, name: name, dur: dur };
+    (part === 'A' ? msArrA(did, si) : msArrB(did, si)).push(ms);
+
+    var list = $('msl-' + did + '-' + si + '-' + part);
+    if (list) {
+      var div = document.createElement('div');
+      div.className = 'ms-item';
+      div.id = 'msi-' + did + '-' + si + '-' + part + '-' + ms.id;
+      div.innerHTML =
+        '<span class="ms-name">' + esc(ms.name) + '</span>' +
+        (ms.dur ? '<span class="ms-tag">' + ms.dur + 'm</span>' : '') +
+        '<button class="ms-del" onclick="App.delMSP(\'' + did + '\',' + si + ',\'' + part + '\',' + ms.id + ')">×</button>';
+      list.appendChild(div);
+    }
+    refreshPartDur(did, si, part);
+    refreshToggleCount(did, si, part);
+    nEl.value = ''; if (dEl) dEl.value = ''; nEl.focus();
+  }
+
+  function delMSP(did, si, part, id) {
+    var arr = part === 'A' ? msArrA(did, si) : msArrB(did, si);
+    var idx = arr.findIndex(function(m){ return m.id === id; });
+    if (idx !== -1) arr.splice(idx, 1);
+    var el = $('msi-' + did + '-' + si + '-' + part + '-' + id);
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+    refreshPartDur(did, si, part);
+    refreshToggleCount(did, si, part);
+  }
+
+  function refreshToggleCount(did, si, part) {
+    var btn = $('msbtn-' + did + '-' + si + '-' + part);
+    if (!btn) return;
+    var arr = part === 'A' ? msArrA(did, si) : msArrB(did, si);
+    var isOpen = btn.classList.contains('ms-open');
+    btn.textContent = '☰ Steps' + (arr.length > 0 ? ' · ' + arr.length : '');
+    if (isOpen) btn.classList.add('ms-open');
+  }
+
+  function refreshPartDur(did, si, part) {
+    var h = hrs[did];
+    if (!h) return;
+    var d = DOMAINS.find(function(x){ return x.id === did; });
+    if (!d || d.isNight) return;
+    var t   = calcTimes(h, d.sty)[si];
+    var raw = part === 'A' ? Math.round(t.a) : Math.round(t.b);
+    var arr = part === 'A' ? msArrA(did, si) : msArrB(did, si);
+    var cm  = arr.reduce(function(s,m){ return s+(m.dur||0); }, 0);
+    var el  = $('sdur-' + did + '-' + si + '-' + part);
+    if (el) el.textContent = cm > 0 ? fmtMin(cm)+' custom' : fmtMin(raw);
+  }
+
+  /* ─── TIMER ENGINE ───────────────────── */
+  var T = null;
+
+  function timerStartPart(did, si, part) {
+    var d = DOMAINS.find(function(x){ return x.id === did; });
+    var h = hrs[did];
+    if (!d || d.isNight) return;
+    if (!h) { alert('Set hours for ' + d.nameEn + ' first.'); return; }
+
+    var t        = calcTimes(h, d.sty)[si];
+    var slotM    = part === 'A' ? Math.round(t.a) : Math.round(t.b);
+    var sd       = d.slots[si];
+    var partName = part === 'A' ? sd.pAName : sd.pBName;
+    var ms       = part === 'A' ? msArrA(did, si) : msArrB(did, si);
+
+    var steps = ms.length > 0
+      ? ms.map(function(m) {
+          return { name: m.name, msId: m.id, totalSec: m.dur > 0 ? m.dur*60 : Math.round((slotM*60)/ms.length), status: 'pending' };
+        })
+      : [{ name: partName, msId: null, totalSec: slotM * 60, status: 'pending' }];
+
+    killTimer();
+    T = {
+      d: d, did: did, si: si, part: part,
+      sd: { name: partName, jp: part==='A' ? sd.pAJp : sd.pBJp },
+      color: d.color, steps: steps, cur: 0,
+      secLeft: steps[0].totalSec,
+      paused: false, nDone: 0, nSkip: 0, iv: null,
+    };
+    showTimerScreen();
+    syncTimer();
+    T.iv = setInterval(tick, 1000);
+  }
+
+  function timerRitual() {
+    var d  = DOMAINS.find(function(x){ return x.id === 'night'; });
+    if (!d) return;
+    var ms = msArrA('night', 0);
+    var steps = ms.length > 0
+      ? ms.map(function(m) {
+          return { name: m.name, msId: m.id, totalSec: m.dur > 0 ? m.dur*60 : Math.round((30*60)/ms.length), status: 'pending' };
+        })
+      : [{ name: 'Sleep Ritual', msId: null, totalSec: 30*60, status: 'pending' }];
+
+    killTimer();
+    // BUG FIX: set did, si, part so done-screen badge and strikethrough work
+    T = {
+      d: d, did: 'night', si: 0, part: 'A',
+      sd: { name: 'Sleep Ritual', jp: 'ねむりのしたく' },
+      color: d.color, steps: steps, cur: 0,
+      secLeft: steps[0].totalSec,
+      paused: false, nDone: 0, nSkip: 0, iv: null,
+    };
+    showTimerScreen();
+    syncTimer();
+    T.iv = setInterval(tick, 1000);
+  }
+
+  function tick() {
+    if (!T || T.paused) return;
+    T.secLeft--;
+    if (T.secLeft <= 0) {
+      T.secLeft = 0;
+      syncTimer();
+      clearTick();
+      setTimeout(function(){ advance(false); }, 650);
+    } else {
+      syncTimer();
+    }
+  }
+
+  function advance(skip) {
+    if (!T) return;
+    var completedStep = T.steps[T.cur];
+    completedStep.status = skip ? 'skipped' : 'done';
+    if (skip) T.nSkip++; else T.nDone++;
+
+    if (completedStep.msId && T.did !== undefined && T.si !== undefined && T.part !== undefined) {
+      var elId = 'msi-' + T.did + '-' + T.si + '-' + T.part + '-' + completedStep.msId;
+      var itemEl = $(elId);
+      if (itemEl) {
+        var nameEl = itemEl.querySelector('.ms-name');
+        if (nameEl) nameEl.classList.add('ms-struck');
+      }
+    }
+
+    var next = T.cur + 1;
+    if (next >= T.steps.length) { clearTick(); showDoneScreen(); return; }
+    T.cur     = next;
+    T.secLeft = T.steps[next].totalSec;
+    if (!T.iv) T.iv = setInterval(tick, 1000);
+    syncTimer();
+  }
+
+  function syncTimer() {
+    if (!T) return;
+    var color = T.color, steps = T.steps, cur = T.cur, step = steps[cur];
+
+    var domEl = $('tmr-domain');
+    if (domEl) { domEl.textContent = T.d.nameEn + ' · ' + T.sd.name; domEl.style.color = color; }
+    tx('tmr-slot',  T.sd.name);
+    tx('tmr-step',  step.name);
+    tx('tmr-time',  fmtSec(T.secLeft));
+    tx('tmr-lbl',   T.paused ? '⏸  paused' : 'remaining');
+
+    var arc = $('ring-arc');
+    if (arc) {
+      var p = step.totalSec > 0 ? T.secLeft / step.totalSec : 0;
+      arc.style.stroke = color;
+      arc.setAttribute('stroke-dasharray',  RING_C.toFixed(3));
+      arc.setAttribute('stroke-dashoffset', (RING_C * (1 - p)).toFixed(3));
+    }
+
+    var sig = steps.map(function(s, i) {
+      return i === cur ? 'A' : s.status.charAt(0).toUpperCase();
+    }).join('');
+    var dotsEl = $('tmr-dots');
+    if (dotsEl && dotsEl.getAttribute('data-sig') !== sig) {
+      dotsEl.setAttribute('data-sig', sig);
+      dotsEl.innerHTML = steps.map(function(s, i) {
+        var cls = 'dot ' + (i===cur ? 'dot-a' : s.status==='done' ? 'dot-d' : s.status==='skipped' ? 'dot-s' : 'dot-p');
+        var st  = i === cur ? ' style="background:' + color + '"' : '';
+        return '<div class="' + cls + '"' + st + '></div>';
+      }).join('');
+    }
+
+    tx('tmr-step-cnt', 'STEP ' + (cur+1) + ' / ' + steps.length);
+    tx('tmr-done-cnt', T.nDone + ' DONE · ' + T.nSkip + ' SKIPPED');
+    sc('ctrl-done', 'background', color);
+    var pb = $('ctrl-pause');
+    if (pb) pb.textContent = T.paused ? '▶ Resume' : '⏸ Pause';
+  }
+
+  function showTimerScreen() {
+    rc($('overlay'),     'off');
+    rc($('tmr-screen'),  'gone');
+    gc($('done-screen'), 'gone');
+  }
+
+  function showDoneScreen() {
+    if (!T) return;
+    gc($('tmr-screen'),  'gone');
+    rc($('done-screen'), 'gone');
+    var tEl = $('c-title');
+    if (tEl) { tEl.textContent = T.sd.name; tEl.style.color = T.color; }
+    tx('c-sub',   'Session Complete · ' + T.d.nameEn);
+    tx('c-done',  String(T.nDone));
+    tx('c-skip',  String(T.nSkip));
+    tx('c-total', String(T.steps.length));
+    sc('c-done',       'color',      T.color);
+    sc('c-close-btn',  'background', T.color);
+
+    if (T.did !== undefined && T.si !== undefined && T.part !== undefined) {
+      T.steps.forEach(function(step) {
+        if (!step.msId) return;
+        var itemEl = $('msi-' + T.did + '-' + T.si + '-' + T.part + '-' + step.msId);
+        if (itemEl) {
+          var nameEl = itemEl.querySelector('.ms-name');
+          if (nameEl) nameEl.classList.add('ms-struck');
+        }
+      });
+
+      doneParts.add(T.did + ':' + T.si + ':' + T.part);
+      var partEl = $('splitpart-' + T.did + '-' + T.si + '-' + T.part);
+      if (partEl) {
+        partEl.classList.add('part-done');
+        var hdRight = partEl.querySelector('.split-part-hd > div:last-child');
+        if (hdRight && !hdRight.querySelector('.part-done-badge')) {
+          var badge = document.createElement('span');
+          badge.className = 'part-done-badge';
+          badge.style.background = T.color;
+          badge.textContent = '✓ Done';
+          hdRight.insertBefore(badge, hdRight.firstChild);
+        }
+      }
+
+      if (T.part === 'B' && T.si > 0) {
+        doneSlots[T.did].add(T.si);
+        if (domainComplete(T.did)) {
+          setTimeout(function() {
+            advanceActiveDomain();
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 600);
+        } else {
+          render();
+          setTimeout(function() {
+            var next = $('slot-' + T.did + '-' + (T.si + 1));
+            if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 300);
+        }
+      }
+    }
+
+    if (T.si === 0 && T.part === 'A' && T.did) {
+      halfDoneSlots[T.did].add(0);
+      render();
+      setTimeout(function() {
+        var next = $('slot-' + T.did + '-1');
+        if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+
+    if (T.did === 'night' && T.si === 0 && T.part === 'A') {
+      setTimeout(function() { render(); }, 400);
+    }
+  }
+
+  function timerDone()  { clearTick(); advance(false); }
+  function timerSkip()  { clearTick(); advance(true); }
+  function timerPause() { if (!T) return; T.paused = !T.paused; syncTimer(); }
+
+  function timerClose() {
+    killTimer();
+    // BUG FIX: re-query overlay in case it was re-rendered
+    var ov = $('overlay');
+    if (ov) ov.classList.add('off');
+    var dotsEl = $('tmr-dots');
+    if (dotsEl) dotsEl.setAttribute('data-sig', '');
+  }
+
+  function clearTick() { if (T && T.iv) { clearInterval(T.iv); T.iv = null; } }
+  function killTimer()  { clearTick(); T = null; }
+
+  /* Backdrop close for timer overlay */
+  (function() {
+    var ov = $('overlay');
+    if (ov) ov.addEventListener('click', function(e){ if (e.target === this) timerClose(); });
+  }());
+
+  /* ─── DOCS MODAL ─────────────────────── */
+  function openDocs() {
+    var el = $('docs-overlay');
+    if (el) el.classList.add('visible');
+    // Reset to first tab
+    docsTab('readme', document.querySelector('.docs-tab'));
+  }
+
+  function closeDocs() {
+    var el = $('docs-overlay');
+    if (el) el.classList.remove('visible');
+  }
+
+  function docsTab(name, btn) {
+    // Deactivate all tabs and panes
+    var tabs  = document.querySelectorAll('.docs-tab');
+    var panes = document.querySelectorAll('.docs-pane');
+    tabs.forEach(function(t){ t.classList.remove('active'); });
+    panes.forEach(function(p){ p.classList.remove('active'); });
+    // Activate selected
+    if (btn) btn.classList.add('active');
+    var pane = $('docs-' + name);
+    if (pane) pane.classList.add('active');
+  }
+
+  /* Close docs on Escape */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeDocs();
+      if (T) timerClose();
+    }
+  });
+
+  /* ─── PWA INSTALL PROMPT ─────────────── */
+  var _deferredInstall = null;
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    _deferredInstall = e;
+    var btn = $('nav-install');
+    if (btn) btn.classList.add('visible');
+  });
+
+  window.addEventListener('appinstalled', function() {
+    var btn = $('nav-install');
+    if (btn) btn.classList.remove('visible');
+    _deferredInstall = null;
+  });
+
+  function installPWA() {
+    if (!_deferredInstall) return;
+    _deferredInstall.prompt();
+    _deferredInstall.userChoice.then(function(result) {
+      if (result.outcome === 'accepted') {
+        var btn = $('nav-install'); if (btn) btn.classList.remove('visible');
+      }
+      _deferredInstall = null;
+    });
+  }
+
+  /* ─── NAV DATE ───────────────────────── */
+  (function setDate() {
+    var now = new Date();
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var el = $('nav-date');
+    if (el) el.textContent = days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate();
+  }());
+
+  /* ─── BOOT ───────────────────────────── */
+  render();
+
+  /* ─── PUBLIC API ─────────────────────── */
+  return {
+    pick:           pick,
+    setDomain:      setDomain,
+    toggleMS:       toggleMS,
+    completeSlot:   completeSlot,
+    reopenSlot:     reopenSlot,
+    addMSP:         addMSP,
+    delMSP:         delMSP,
+    timerStartPart: timerStartPart,
+    timerRitual:    timerRitual,
+    timerDone:      timerDone,
+    timerSkip:      timerSkip,
+    timerPause:     timerPause,
+    timerClose:     timerClose,
+    installPWA:     installPWA,
+    openDocs:       openDocs,
+    closeDocs:      closeDocs,
+    docsTab:        docsTab,
+  };
+
+}()); // end App
+
+/* ─── SERVICE WORKER REGISTRATION ─── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').then(function (reg) {
+      console.log('[O2 Elite] SW registered:', reg.scope);
+    }).catch(function (err) {
+      console.warn('[O2 Elite] SW registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
